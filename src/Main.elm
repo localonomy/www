@@ -1,39 +1,80 @@
-import Html exposing (Html, button, div, text)
-import Html.Events exposing (onClick)
+import Html exposing (Html, div, ul, li, text)
+import Http
+import Json.Decode exposing (Decoder, string, list)
+import Json.Decode.Pipeline exposing (decode, required)
+import List exposing (map)
 
 -- MAIN --
 main : Program Never Model Msg
 main =
-  Html.beginnerProgram
-    { model = model
+  Html.program
+    { init = init
     , view = view
     , update = update
+    , subscriptions = subscriptions
     }
 
 -- MODEL --
-type alias Model = Int
+type alias Country = 
+  { id: String
+  , code: String
+  , name: String
+  }
 
-model : Model
-model =
-  0
+type alias Model = (List Country)
+
+init : (Model, Cmd Msg)
+init =
+  let
+    model =
+      []
+  in
+    model ! [fetchData]
 
 -- UPDATE --
-type Msg = Increment | Decrement
+type Msg = Data (Result Http.Error Model)
 
-update : Msg -> Model -> Model
+update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
-    Increment ->
-      model + 1
+    Data (Ok data) ->
+      (data, Cmd.none)
 
-    Decrement ->
-      model - 1 
+    Data (Err _) ->
+      (model, Cmd.none)
 
 -- VIEW --
 view : Model -> Html Msg
 view model =
   div []
-    [ button [ onClick Increment ] [ text "+" ]
-    , div [] [ text (toString model) ]
-    , button [ onClick Decrement ] [ text "-" ]
+    [ ul []
+      (map (\l -> li [] [ text l.name ]) model)
     ]
+
+-- SUBSCRIPTIONS --
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Sub.none
+
+-- HTTP --
+fetchData : Cmd Msg
+fetchData =
+  let
+    url = 
+      "http://localhost:3000/api/countries"
+
+    request = 
+      Http.get url countryListDecoder
+  in
+    Http.send Data request
+
+countryDecoder : Decoder Country
+countryDecoder =
+  decode Country
+    |> required "id" string
+    |> required "code" string
+    |> required "name" string
+
+countryListDecoder : Decoder (List Country)
+countryListDecoder = 
+  list countryDecoder
