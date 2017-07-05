@@ -21,8 +21,14 @@ type alias Country =
   , name: String
   }
 
+type alias Dish =
+  { id : String
+  , name : String
+  }
+
 type alias Model = 
-  { countries: (List Country)
+  { countries : (List Country)
+  , dishes : (List Dish)
   }
 
 init : (Model, Cmd Msg)
@@ -30,12 +36,14 @@ init =
   let
     model =
       { countries = []
+      , dishes = []
       }
   in
-    model ! [fetchData]
+    model ! [fetchCountries, fetchDishes]
 
 -- UPDATE --
 type Msg = Countries (Result Http.Error (List Country))
+  | Dishes (Result Http.Error (List Dish))
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -46,12 +54,20 @@ update msg model =
     Countries (Err _) ->
       (model, Cmd.none)
 
+    Dishes (Ok data) ->
+      ({ model | dishes = data }, Cmd.none)
+
+    Dishes (Err _) ->
+      (model, Cmd.none)
+
 -- VIEW --
 view : Model -> Html Msg
 view model =
   div []
     [ ul []
         (map (\l -> li [] [ text l.name ]) model.countries)
+    , ul []
+        (map (\l -> li [] [ text l.name ]) model.dishes)
     ]
 
 -- SUBSCRIPTIONS --
@@ -60,8 +76,8 @@ subscriptions model =
     Sub.none
 
 -- HTTP --
-fetchData : Cmd Msg
-fetchData =
+fetchCountries : Cmd Msg
+fetchCountries =
   let
     url = 
       "http://localhost:3000/api/countries"
@@ -81,3 +97,24 @@ countryDecoder =
 countryListDecoder : Decoder (List Country)
 countryListDecoder = 
   list countryDecoder
+
+fetchDishes : Cmd Msg
+fetchDishes =
+  let
+    url = 
+      "http://localhost:3000/api/dishes"
+
+    request = 
+      Http.get url dishListDecoder
+  in
+    Http.send Dishes request
+
+dishDecoder : Decoder Dish
+dishDecoder =
+  decode Dish
+    |> required "id" string
+    |> required "name" string
+
+dishListDecoder : Decoder (List Dish)
+dishListDecoder = 
+  list dishDecoder
