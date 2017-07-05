@@ -1,8 +1,8 @@
-import Html exposing (Html, div, ul, li, text)
+import Html exposing (..)
 import Http
-import Json.Decode exposing (Decoder, string, list)
-import Json.Decode.Pipeline exposing (decode, required)
-import List exposing (map)
+import Json.Decode as Decode exposing (Decoder)
+import Json.Decode.Pipeline as Json exposing (required)
+import List
 
 -- MAIN --
 main : Program Never Model Msg
@@ -76,11 +76,11 @@ view : Model -> Html Msg
 view model =
   div []
     [ ul []
-        (map (\l -> li [] [ text l.name ]) model.countries)
+        (List.map (\l -> li [] [ text l.name ]) model.countries)
     , ul []
-        (map (\l -> li [] [ text l.name ]) model.dishes)
+        (List.map (\l -> li [] [ text l.name ]) model.dishes)
     , ul []
-        (map (\l -> li [] [ text l ]) model.filters)
+        (List.map (\l -> li [] [ text l ]) model.filters)
     ]
 
 -- SUBSCRIPTIONS --
@@ -102,14 +102,14 @@ fetchCountries =
 
 countryDecoder : Decoder Country
 countryDecoder =
-  decode Country
-    |> required "id" string
-    |> required "code" string
-    |> required "name" string
+  Json.decode Country
+    |> required "id" Decode.string
+    |> required "code" Decode.string
+    |> required "name" Decode.string
 
 countryListDecoder : Decoder (List Country)
 countryListDecoder = 
-  list countryDecoder
+  Decode.list countryDecoder
 
 fetchDishes : Cmd Msg
 fetchDishes =
@@ -124,13 +124,13 @@ fetchDishes =
 
 dishDecoder : Decoder Dish
 dishDecoder =
-  decode Dish
-    |> required "id" string
-    |> required "name" string
+  Json.decode Dish
+    |> required "id" Decode.string
+    |> required "name" Decode.string
 
 dishListDecoder : Decoder (List Dish)
 dishListDecoder = 
-  list dishDecoder
+  Decode.list dishDecoder
 
 fetchFilters : Cmd Msg
 fetchFilters =
@@ -145,4 +145,4 @@ fetchFilters =
 
 filterListDecoder : Decoder (List Filter)
 filterListDecoder =
-  list string
+  Decode.list Decode.string
