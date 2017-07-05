@@ -21,26 +21,29 @@ type alias Country =
   , name: String
   }
 
-type alias Model = (List Country)
+type alias Model = 
+  { countries: (List Country)
+  }
 
 init : (Model, Cmd Msg)
 init =
   let
     model =
-      []
+      { countries = []
+      }
   in
     model ! [fetchData]
 
 -- UPDATE --
-type Msg = Data (Result Http.Error Model)
+type Msg = Countries (Result Http.Error (List Country))
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
-    Data (Ok data) ->
-      (data, Cmd.none)
+    Countries (Ok data) ->
+      ({ model | countries = data }, Cmd.none)
 
-    Data (Err _) ->
+    Countries (Err _) ->
       (model, Cmd.none)
 
 -- VIEW --
@@ -48,7 +51,7 @@ view : Model -> Html Msg
 view model =
   div []
     [ ul []
-      (map (\l -> li [] [ text l.name ]) model)
+        (map (\l -> li [] [ text l.name ]) model.countries)
     ]
 
 -- SUBSCRIPTIONS --
@@ -66,7 +69,7 @@ fetchData =
     request = 
       Http.get url countryListDecoder
   in
-    Http.send Data request
+    Http.send Countries request
 
 countryDecoder : Decoder Country
 countryDecoder =
