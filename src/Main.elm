@@ -1,20 +1,23 @@
 import Html exposing (..)
+import Html.Events exposing (..)
 import Http
 import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline as Json exposing (required)
 import List
+import Navigation
+import UrlParser exposing((</>))
 
 -- MAIN --
 main : Program Never Model Msg
 main =
-  Html.program
+  Navigation.program UrlChange
     { init = init
     , view = view
     , update = update
     , subscriptions = subscriptions
     }
 
--- MODEL --
+-- INIT --
 type alias Country = 
   { id: String
   , code: String
@@ -24,64 +27,182 @@ type alias Country =
 type alias Dish =
   { id : String
   , name : String
+  , localName : String
+  , picture : String
+  , description : String
+  , ingredients : (List String)
+  , contains : (List String)
+  }
+
+type alias DishName =
+  { id : String
+  , name : String
+  }
+
+type alias CountryDish =
+  { id : String
+  , name : String
+  , localName : String
+  , ingredients : (List String)
+  , contains : (List String)
   }
 
 type alias Filter = String
 
+type Route
+  = HomeRoute
+  | CountryRoute String
+  | DishRoute String
+
 type alias Model = 
-  { countries : (List Country)
-  , dishes : (List Dish)
+  { currentLocation : Maybe Route
+  , countries : (List Country)
+  , currentCountry : Maybe Country
+  , countryDishes : (List CountryDish)
+  , dishNames : (List DishName)
+  , currentDish : Maybe Dish
   , filters : (List Filter)
+  , filtersDisabled : (List Filter)
+  , tab : String
   }
 
-init : (Model, Cmd Msg)
-init =
-  let
-    model =
-      { countries = []
-      , dishes = []
-      , filters = []
-      }
-  in
-    model ! [fetchCountries, fetchDishes, fetchFilters]
+init : Navigation.Location -> (Model, Cmd Msg)
+init location =
+  ( { currentLocation = UrlParser.parsePath route location
+    , countries = []
+    , currentCountry = Nothing
+    , countryDishes = []
+    , dishNames = []
+    , currentDish = Nothing
+    , filters = []
+    , filtersDisabled = []
+    , tab = "country"
+    }
+  , Cmd.batch 
+    [ fetchCountries
+    , fetchDishes
+    , fetchFilters
+    ]
+  )
+
+route : UrlParser.Parser (Route -> a) a
+route =
+  UrlParser.oneOf
+    [ UrlParser.map HomeRoute UrlParser.top
+    , UrlParser.map CountryRoute (UrlParser.s "country" </> UrlParser.string)
+    , UrlParser.map DishRoute (UrlParser.s "dish" </> UrlParser.string)
+    ]
 
 -- UPDATE --
-type Msg = Countries (Result Http.Error (List Country))
-  | Dishes (Result Http.Error (List Dish))
+type Msg 
+  = NewUrl String
+  | UrlChange Navigation.Location
+  | Countries (Result Http.Error (List Country))
+  | CountryDishes (Result Http.Error (List CountryDish))
+  | DishNames (Result Http.Error (List DishName))
+  | DishDetails (Result Http.Error Dish)
   | Filters (Result Http.Error (List String))
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
+    NewUrl url ->
+      ( model, Navigation.newUrl url )
+    
+    UrlChange location ->
+      let
+        newLocation =
+          UrlParser.parsePath route location
+        
+        command =
+          case newLocation of
+            Just route ->
+              case route of
+                HomeRoute ->
+                  Cmd.none
+                CountryRoute id ->
+                  fetchCountryDishes id
+                DishRoute id ->
+                  fetchDishDetails id
+            Nothing ->
+              Cmd.none
+      in
+        ({ model | currentLocation = newLocation }, command)
+
     Countries (Ok data) ->
       ({ model | countries = data }, Cmd.none)
-
     Countries (Err _) ->
       (model, Cmd.none)
 
-    Dishes (Ok data) ->
-      ({ model | dishes = data }, Cmd.none)
+    CountryDishes (Ok data) ->
+      ({ model | countryDishes = data }, Cmd.none)
+    CountryDishes (Err _) ->
+      (model, Cmd.none)
 
-    Dishes (Err _) ->
+    DishNames (Ok data) ->
+      ({ model | dishNames = data }, Cmd.none)
+    DishNames (Err _) ->
+      (model, Cmd.none)
+
+    DishDetails (Ok data) ->
+      ({ model | currentDish = Just data }, Cmd.none)
+    DishDetails (Err _) ->
       (model, Cmd.none)
 
     Filters (Ok data) ->
       ({ model | filters = data }, Cmd.none)
-
     Filters (Err _) ->
       (model, Cmd.none)
 
 -- VIEW --
 view : Model -> Html Msg
 view model =
+  div [] [ page model ]
+
+page : Model -> Html Msg
+page model =
+  case model.currentLocation of
+    Just route ->
+      case route of
+        HomeRoute ->
+          viewHome model
+        CountryRoute id ->
+          let
+            country = List.head (List.filter (\c -> c.id == id) model.countries)
+          in
+            case country of
+              Just country ->
+                viewCountry country model
+              Nothing ->
+                div [] [ text "404 - Not Found" ]
+        DishRoute id ->
+          viewDish model
+    Nothing ->
+      viewHome model
+
+viewHome : Model -> Html Msg
+viewHome model =
   div []
     [ ul []
-        (List.map (\l -> li [] [ text l.name ]) model.countries)
+        (List.map (\country -> li [ onClick (NewUrl ("/country/" ++ country.id)) ] [ text country.name ]) model.countries)
     , ul []
-        (List.map (\l -> li [] [ text l.name ]) model.dishes)
+        (List.map (\dish -> li [] [ text dish.name ]) model.dishNames)
     , ul []
-        (List.map (\l -> li [] [ text l ]) model.filters)
+        (List.map (\filter -> li [] [ text filter ]) model.filters)
     ]
+
+viewCountry : Country -> Model -> Html Msg
+viewCountry country model =
+  div []
+    [ text country.name
+    , ul []
+        (List.map (\l -> li [] [ text l.name ]) model.countryDishes)
+    ]
+
+viewDish : Model -> Html Msg
+viewDish model =
+  div []
+    [ text "TODO" ]
 
 -- SUBSCRIPTIONS --
 subscriptions : Model -> Sub Msg
@@ -120,17 +241,63 @@ fetchDishes =
     request = 
       Http.get url dishListDecoder
   in
-    Http.send Dishes request
+    Http.send DishNames request
+
+dishNameDecoder : Decoder DishName
+dishNameDecoder =
+  Json.decode DishName
+    |> required "id" Decode.string
+    |> required "name" Decode.string
+
+dishListDecoder : Decoder (List DishName)
+dishListDecoder = 
+  Decode.list dishNameDecoder
+
+fetchDishDetails : String -> (Cmd Msg)
+fetchDishDetails dish =
+  let
+    url = 
+      "http://localhost:3000/api/dish/" ++ dish
+
+    request = 
+      Http.get url dishDecoder
+  in
+    Http.send DishDetails request
 
 dishDecoder : Decoder Dish
 dishDecoder =
   Json.decode Dish
     |> required "id" Decode.string
     |> required "name" Decode.string
+    |> required "localName" Decode.string
+    |> required "picture" Decode.string
+    |> required "description" Decode.string
+    |> required "ingredients" (Decode.list Decode.string)
+    |> required "contains" (Decode.list Decode.string)
 
-dishListDecoder : Decoder (List Dish)
-dishListDecoder = 
-  Decode.list dishDecoder
+fetchCountryDishes : String -> (Cmd Msg)
+fetchCountryDishes country =
+  let
+    url = 
+      "http://localhost:3000/api/dishes/" ++ country
+
+    request = 
+      Http.get url countryDishesDecoder
+  in
+    Http.send CountryDishes request
+
+countryDishDecoder : Decoder CountryDish
+countryDishDecoder =
+  Json.decode CountryDish
+    |> required "id" Decode.string
+    |> required "name" Decode.string
+    |> required "localName" Decode.string
+    |> required "ingredients" (Decode.list Decode.string)
+    |> required "contains" (Decode.list Decode.string)
+
+countryDishesDecoder : Decoder (List CountryDish)
+countryDishesDecoder = 
+  Decode.list countryDishDecoder
 
 fetchFilters : Cmd Msg
 fetchFilters =
