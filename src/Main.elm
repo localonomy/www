@@ -168,15 +168,39 @@ page model =
           viewHome model
         CountryRoute id ->
           let
-            country = List.head (List.filter (\c -> c.id == id) model.countries)
+            country = 
+              List.head 
+                (List.filter 
+                  (\c -> c.id == id) 
+                  model.countries
+                )
+
+            dishes = model.countryDishes
           in
             case country of
               Just country ->
-                viewCountry country model
+                viewCountry country dishes
               Nothing ->
                 div [] [ text "404 - Not Found" ]
         DishRoute id ->
-          viewDish model
+          let
+            country =
+              List.head 
+                (List.filter 
+                  (\c -> c.id == String.left 2 id)
+                  model.countries
+                )
+            dish = model.currentDish
+          in
+            case country of
+              Just country ->
+                case dish of
+                  Just dish ->
+                    viewDish country dish
+                  Nothing ->
+                    div [] [ text "404 - Not Found" ]
+              Nothing ->
+                div [] [ text "404 - Not Found" ]
     Nothing ->
       viewHome model
 
@@ -184,25 +208,48 @@ viewHome : Model -> Html Msg
 viewHome model =
   div []
     [ ul []
-        (List.map (\country -> li [ onClick (NewUrl ("/country/" ++ country.id)) ] [ text country.name ]) model.countries)
+      (List.map 
+        (\country -> 
+          li 
+          [ onClick (NewUrl ("/country/" ++ country.id)) ] 
+          [ text country.name ]
+        ) 
+        model.countries
+      )
     , ul []
-        (List.map (\dish -> li [] [ text dish.name ]) model.dishNames)
+      (List.map 
+        (\dish -> 
+          li 
+          [ onClick (NewUrl ("/dish/" ++ dish.id)) ] 
+          [ text dish.name ]
+        ) 
+        model.dishNames
+      )
     , ul []
         (List.map (\filter -> li [] [ text filter ]) model.filters)
     ]
 
-viewCountry : Country -> Model -> Html Msg
-viewCountry country model =
+viewCountry : Country -> (List CountryDish) -> Html Msg
+viewCountry country dishes =
   div []
     [ text country.name
     , ul []
-        (List.map (\l -> li [] [ text l.name ]) model.countryDishes)
+      ( List.map 
+        (\dish -> 
+          li 
+          [ onClick (NewUrl ("/dish/" ++ dish.id)) ] 
+          [ text dish.name ]
+        ) 
+        dishes
+      )
     ]
 
-viewDish : Model -> Html Msg
-viewDish model =
+viewDish : Country -> Dish -> Html Msg
+viewDish country dish =
   div []
-    [ text "TODO" ]
+    [ text country.name 
+    , text dish.name
+    ]
 
 -- SUBSCRIPTIONS --
 subscriptions : Model -> Sub Msg
