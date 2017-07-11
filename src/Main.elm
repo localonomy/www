@@ -135,13 +135,16 @@ update msg model =
       ({ model | tab = tab }, Cmd.none)
 
     ToggleFilter filter ->
-      if List.member filter model.filtersDisabled then
-        -- Remove from list
-        ({ model | filtersDisabled = List.filter (not << (\f -> f == filter)) model.filtersDisabled }, Cmd.none)
-
-      else
-        -- Add to list
-        ({ model | filtersDisabled = model.filtersDisabled ++ [filter] }, Cmd.none)
+      let
+        filters = 
+          if List.member filter model.filtersDisabled then
+            List.filter 
+              (not << (\f -> f == filter)) 
+              model.filtersDisabled
+          else
+            model.filtersDisabled ++ [filter]
+      in
+        ({ model | filtersDisabled = filters }, Cmd.none)
 
     Countries (Ok data) ->
       ({ model | countries = data }, Cmd.none)
@@ -149,7 +152,22 @@ update msg model =
       (model, Cmd.none)
 
     CountryDishes (Ok data) ->
-      ({ model | countryDishes = data }, Cmd.none)
+      let
+        dishes =
+          if List.isEmpty model.filtersDisabled then
+            data
+          else
+            List.filterMap 
+            (\dish -> 
+              if List.any (\filter -> List.member filter dish.contains) model.filtersDisabled then
+                Nothing
+              else
+                Just dish
+            )
+            data
+      in
+        ({ model | countryDishes = dishes }, Cmd.none)
+
     CountryDishes (Err _) ->
       (model, Cmd.none)
 
@@ -258,7 +276,12 @@ viewHome model =
           (\filter -> 
             li 
             [ onClick (ToggleFilter filter)]
-            [ text filter ]
+            [ text filter
+            , if List.member filter model.filtersDisabled then 
+                text " - disabled" 
+              else 
+                text "" 
+            ]
           ) 
           model.filters
         )
