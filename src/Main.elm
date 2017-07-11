@@ -1,6 +1,5 @@
 import Html exposing (..)
 import Html.Events exposing (..)
-import Http
 import List
 import Navigation
 import UrlParser exposing((</>))
@@ -8,10 +7,15 @@ import UrlParser exposing((</>))
 import Data.Country as Country exposing (Country)
 import Data.CountryDish as CountryDish exposing (CountryDish)
 import Data.Dish as Dish exposing (Dish)
-import Data.DishName as DishName exposing (DishName)
-import Data.Filter as Filter exposing (Filter)
+
+import Request.Country
+import Request.CountryDish
+import Request.Dish
+import Request.DishName
+import Request.Filter
 
 import Model exposing (Model, initialModel)
+import Msg exposing (Msg (..))
 
 import Route exposing (Route (..), route)
 
@@ -29,9 +33,9 @@ main =
 initialCmd : Cmd Msg
 initialCmd = 
   Cmd.batch 
-    [ fetchCountries
-    , fetchDishes
-    , fetchFilters
+    [ Request.Country.get
+    , Request.DishName.get
+    , Request.Filter.get
     ]
 
 init : Navigation.Location -> (Model, Cmd Msg)
@@ -41,17 +45,6 @@ init location =
   )
 
 -- UPDATE --
-type Msg 
-  = NewUrl String
-  | UrlChange Navigation.Location
-  | ShowTab String
-  | ToggleFilter String
-  | Countries (Result Http.Error (List Country))
-  | CountryDishes (Result Http.Error (List CountryDish))
-  | DishNames (Result Http.Error (List DishName))
-  | DishDetails (Result Http.Error Dish)
-  | Filters (Result Http.Error (List String))
-
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
@@ -70,9 +63,9 @@ update msg model =
                 Route.Home ->
                   Cmd.none
                 Route.Country id ->
-                  fetchCountryDishes id
+                  Request.CountryDish.get id
                 Route.Dish id ->
-                  fetchDishDetails id
+                  Request.Dish.get id
             Nothing ->
               Cmd.none
       in
@@ -260,59 +253,3 @@ viewDish country dish =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.none
-
--- HTTP --
-fetchCountries : Cmd Msg
-fetchCountries =
-  let
-    url = 
-      "http://localhost:3000/api/countries"
-
-    request = 
-      Http.get url Country.decoder
-  in
-    Http.send Countries request
-
-fetchDishes : Cmd Msg
-fetchDishes =
-  let
-    url = 
-      "http://localhost:3000/api/dishes"
-
-    request = 
-      Http.get url DishName.decoder
-  in
-    Http.send DishNames request
-
-fetchDishDetails : String -> (Cmd Msg)
-fetchDishDetails dish =
-  let
-    url = 
-      "http://localhost:3000/api/dish/" ++ dish
-
-    request = 
-      Http.get url Dish.decoder
-  in
-    Http.send DishDetails request
-
-fetchCountryDishes : String -> (Cmd Msg)
-fetchCountryDishes country =
-  let
-    url = 
-      "http://localhost:3000/api/dishes/" ++ country
-
-    request = 
-      Http.get url CountryDish.decoder
-  in
-    Http.send CountryDishes request
-
-fetchFilters : Cmd Msg
-fetchFilters =
-  let
-    url = 
-      "http://localhost:3000/api/filters"
-
-    request = 
-      Http.get url Filter.decoder
-  in
-    Http.send Filters request
