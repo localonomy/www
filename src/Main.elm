@@ -57,7 +57,6 @@ type Route
 type alias Model = 
   { currentLocation : Maybe Route
   , countries : (List Country)
-  , currentCountry : Maybe Country
   , countryDishes : (List CountryDish)
   , dishNames : (List DishName)
   , currentDish : Maybe Dish
@@ -70,7 +69,6 @@ init : Navigation.Location -> (Model, Cmd Msg)
 init location =
   ( { currentLocation = UrlParser.parsePath route location
     , countries = []
-    , currentCountry = Nothing
     , countryDishes = []
     , dishNames = []
     , currentDish = Nothing
