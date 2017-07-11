@@ -1,11 +1,15 @@
 import Html exposing (..)
 import Html.Events exposing (..)
 import Http
-import Json.Decode as Decode exposing (Decoder)
-import Json.Decode.Pipeline as Json exposing (required)
 import List
 import Navigation
 import UrlParser exposing((</>))
+
+import Data.Country as Country exposing (Country)
+import Data.CountryDish as CountryDish exposing (CountryDish)
+import Data.Dish as Dish exposing (Dish)
+import Data.DishName as DishName exposing (DishName)
+import Data.Filter as Filter exposing (Filter)
 
 import Route exposing (Route (..), route)
 
@@ -20,37 +24,6 @@ main =
     }
 
 -- INIT --
-type alias Country = 
-  { id: String
-  , code: String
-  , name: String
-  }
-
-type alias Dish =
-  { id : String
-  , name : String
-  , localName : String
-  , picture : String
-  , description : String
-  , ingredients : (List String)
-  , contains : (List String)
-  }
-
-type alias DishName =
-  { id : String
-  , name : String
-  }
-
-type alias CountryDish =
-  { id : String
-  , name : String
-  , localName : String
-  , ingredients : (List String)
-  , contains : (List String)
-  }
-
-type alias Filter = String
-
 type alias Model = 
   { currentLocation : Maybe Route
   , countries : (List Country)
@@ -309,20 +282,9 @@ fetchCountries =
       "http://localhost:3000/api/countries"
 
     request = 
-      Http.get url countryListDecoder
+      Http.get url Country.decoder
   in
     Http.send Countries request
-
-countryDecoder : Decoder Country
-countryDecoder =
-  Json.decode Country
-    |> required "id" Decode.string
-    |> required "code" Decode.string
-    |> required "name" Decode.string
-
-countryListDecoder : Decoder (List Country)
-countryListDecoder = 
-  Decode.list countryDecoder
 
 fetchDishes : Cmd Msg
 fetchDishes =
@@ -331,19 +293,9 @@ fetchDishes =
       "http://localhost:3000/api/dishes"
 
     request = 
-      Http.get url dishListDecoder
+      Http.get url DishName.decoder
   in
     Http.send DishNames request
-
-dishNameDecoder : Decoder DishName
-dishNameDecoder =
-  Json.decode DishName
-    |> required "id" Decode.string
-    |> required "name" Decode.string
-
-dishListDecoder : Decoder (List DishName)
-dishListDecoder = 
-  Decode.list dishNameDecoder
 
 fetchDishDetails : String -> (Cmd Msg)
 fetchDishDetails dish =
@@ -352,20 +304,9 @@ fetchDishDetails dish =
       "http://localhost:3000/api/dish/" ++ dish
 
     request = 
-      Http.get url dishDecoder
+      Http.get url Dish.decoder
   in
     Http.send DishDetails request
-
-dishDecoder : Decoder Dish
-dishDecoder =
-  Json.decode Dish
-    |> required "id" Decode.string
-    |> required "name" Decode.string
-    |> required "localName" Decode.string
-    |> required "picture" Decode.string
-    |> required "description" Decode.string
-    |> required "ingredients" (Decode.list Decode.string)
-    |> required "contains" (Decode.list Decode.string)
 
 fetchCountryDishes : String -> (Cmd Msg)
 fetchCountryDishes country =
@@ -374,22 +315,9 @@ fetchCountryDishes country =
       "http://localhost:3000/api/dishes/" ++ country
 
     request = 
-      Http.get url countryDishesDecoder
+      Http.get url CountryDish.decoder
   in
     Http.send CountryDishes request
-
-countryDishDecoder : Decoder CountryDish
-countryDishDecoder =
-  Json.decode CountryDish
-    |> required "id" Decode.string
-    |> required "name" Decode.string
-    |> required "localName" Decode.string
-    |> required "ingredients" (Decode.list Decode.string)
-    |> required "contains" (Decode.list Decode.string)
-
-countryDishesDecoder : Decoder (List CountryDish)
-countryDishesDecoder = 
-  Decode.list countryDishDecoder
 
 fetchFilters : Cmd Msg
 fetchFilters =
@@ -398,10 +326,6 @@ fetchFilters =
       "http://localhost:3000/api/filters"
 
     request = 
-      Http.get url filterListDecoder
+      Http.get url Filter.decoder
   in
     Http.send Filters request
-
-filterListDecoder : Decoder (List Filter)
-filterListDecoder =
-  Decode.list Decode.string
