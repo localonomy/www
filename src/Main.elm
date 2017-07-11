@@ -98,6 +98,7 @@ type Msg
   = NewUrl String
   | UrlChange Navigation.Location
   | ShowTab String
+  | ToggleFilter String
   | Countries (Result Http.Error (List Country))
   | CountryDishes (Result Http.Error (List CountryDish))
   | DishNames (Result Http.Error (List DishName))
@@ -132,6 +133,15 @@ update msg model =
 
     ShowTab tab ->
       ({ model | tab = tab }, Cmd.none)
+
+    ToggleFilter filter ->
+      if List.member filter model.filtersDisabled then
+        -- Remove from list
+        ({ model | filtersDisabled = List.filter (not << (\f -> f == filter)) model.filtersDisabled }, Cmd.none)
+
+      else
+        -- Add to list
+        ({ model | filtersDisabled = model.filtersDisabled ++ [filter] }, Cmd.none)
 
     Countries (Ok data) ->
       ({ model | countries = data }, Cmd.none)
@@ -244,7 +254,14 @@ viewHome model =
         ]
       ]
     , ul []
-        (List.map (\filter -> li [] [ text filter ]) model.filters)
+        (List.map 
+          (\filter -> 
+            li 
+            [ onClick (ToggleFilter filter)]
+            [ text filter ]
+          ) 
+          model.filters
+        )
     ]
 
 viewCountry : Country -> (List CountryDish) -> Html Msg
