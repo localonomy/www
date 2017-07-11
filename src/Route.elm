@@ -3,14 +3,14 @@ module Route exposing (Route(..), route)
 import UrlParser exposing (..)
 
 type Route
-  = HomeRoute
-  | CountryRoute String
-  | DishRoute String
+  = Home
+  | Country String
+  | Dish String
 
 route : Parser (Route -> a) a
 route =
   oneOf
-    [ map HomeRoute top
-    , map CountryRoute (s "country" </> string)
-    , map DishRoute (s "dish" </> string)
+    [ map Home top
+    , map Country (s "country" </> string)
+    , map Dish (s "dish" </> string)
     ]

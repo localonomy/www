@@ -107,11 +107,11 @@ update msg model =
           case newLocation of
             Just route ->
               case route of
-                HomeRoute ->
+                Route.Home ->
                   Cmd.none
-                CountryRoute id ->
+                Route.Country id ->
                   fetchCountryDishes id
-                DishRoute id ->
+                Route.Dish id ->
                   fetchDishDetails id
             Nothing ->
               Cmd.none
@@ -183,9 +183,9 @@ page model =
   case model.currentLocation of
     Just route ->
       case route of
-        HomeRoute ->
+        Route.Home ->
           viewHome model
-        CountryRoute id ->
+        Route.Country id ->
           let
             country = 
               List.head 
@@ -201,7 +201,7 @@ page model =
                 viewCountry country dishes
               Nothing ->
                 div [] [ text "404 - Not Found" ]
-        DishRoute id ->
+        Route.Dish id ->
           let
             country =
               List.head 
