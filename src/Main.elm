@@ -97,6 +97,7 @@ route =
 type Msg 
   = NewUrl String
   | UrlChange Navigation.Location
+  | ShowTab String
   | Countries (Result Http.Error (List Country))
   | CountryDishes (Result Http.Error (List CountryDish))
   | DishNames (Result Http.Error (List DishName))
@@ -128,6 +129,9 @@ update msg model =
               Cmd.none
       in
         ({ model | currentLocation = newLocation }, command)
+
+    ShowTab tab ->
+      ({ model | tab = tab }, Cmd.none)
 
     Countries (Ok data) ->
       ({ model | countries = data }, Cmd.none)
@@ -207,24 +211,38 @@ page model =
 viewHome : Model -> Html Msg
 viewHome model =
   div []
-    [ ul []
-      (List.map 
-        (\country -> 
-          li 
-          [ onClick (NewUrl ("/country/" ++ country.id)) ] 
-          [ text country.name ]
-        ) 
-        model.countries
-      )
-    , ul []
-      (List.map 
-        (\dish -> 
-          li 
-          [ onClick (NewUrl ("/dish/" ++ dish.id)) ] 
-          [ text dish.name ]
-        ) 
-        model.dishNames
-      )
+    [ div []
+      [ div []
+        [ span
+          [ onClick (ShowTab "country") ]
+          [ text "By Country" ]
+        , span
+          [ onClick (ShowTab "dish") ]
+          [ text "By Dish Name" ]
+        ]
+      , div [] 
+        [ if model.tab == "country" then
+            ul []
+            (List.map 
+              (\country -> 
+                li 
+                [ onClick (NewUrl ("/country/" ++ country.id)) ] 
+                [ text country.name ]
+              ) 
+              model.countries
+            )
+          else
+            ul []
+            (List.map 
+              (\dish -> 
+                li 
+                [ onClick (NewUrl ("/dish/" ++ dish.id)) ] 
+                [ text dish.name ]
+              ) 
+              model.dishNames
+            )
+        ]
+      ]
     , ul []
         (List.map (\filter -> li [] [ text filter ]) model.filters)
     ]
