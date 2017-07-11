@@ -7,6 +7,8 @@ import List
 import Navigation
 import UrlParser exposing((</>))
 
+import Route exposing (Route (..), route)
+
 -- MAIN --
 main : Program Never Model Msg
 main =
@@ -49,11 +51,6 @@ type alias CountryDish =
 
 type alias Filter = String
 
-type Route
-  = HomeRoute
-  | CountryRoute String
-  | DishRoute String
-
 type alias Model = 
   { currentLocation : Maybe Route
   , countries : (List Country)
@@ -82,14 +79,6 @@ init location =
     , fetchFilters
     ]
   )
-
-route : UrlParser.Parser (Route -> a) a
-route =
-  UrlParser.oneOf
-    [ UrlParser.map HomeRoute UrlParser.top
-    , UrlParser.map CountryRoute (UrlParser.s "country" </> UrlParser.string)
-    , UrlParser.map DishRoute (UrlParser.s "dish" </> UrlParser.string)
-    ]
 
 -- UPDATE --
 type Msg 
