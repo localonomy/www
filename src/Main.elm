@@ -30,18 +30,36 @@ main =
     }
 
 -- INIT --
-initialCmd : Cmd Msg
-initialCmd = 
-  Cmd.batch 
-    [ Request.Country.get
-    , Request.DishName.get
-    , Request.Filter.get
-    ]
+initialRoute : Navigation.Location -> Maybe Route
+initialRoute location =
+  UrlParser.parsePath route location
+
+initialCmd : Maybe Route -> Cmd Msg
+initialCmd newLocation =
+  case newLocation of
+    Just route ->
+      case route of
+        Route.Home ->
+          Cmd.batch 
+            [ Request.Country.get
+            , Request.DishName.get
+            , Request.Filter.get
+            ]
+        Route.Country id ->
+          Request.CountryDish.get id
+        Route.Dish id ->
+          Request.Dish.get id
+    Nothing ->
+      Cmd.batch 
+        [ Request.Country.get
+        , Request.DishName.get
+        , Request.Filter.get
+        ]
 
 init : Navigation.Location -> (Model, Cmd Msg)
 init location =
-  ( initialModel (UrlParser.parsePath route location)
-  , initialCmd
+  ( initialModel (initialRoute location)
+  , initialCmd (initialRoute location)
   )
 
 -- UPDATE --
