@@ -1,12 +1,11 @@
 import Html exposing (..)
-import Html.Events exposing (..)
 import List
 import Navigation
 import UrlParser exposing((</>))
 
-import Data.Country as Country exposing (Country)
-import Data.CountryDish as CountryDish exposing (CountryDish)
-import Data.Dish as Dish exposing (Dish)
+import Page.Country
+import Page.Dish
+import Page.Home
 
 import Request.Country
 import Request.CountryDish
@@ -155,7 +154,7 @@ page model =
     Just route ->
       case route of
         Route.Home ->
-          viewHome model
+          Page.Home.view model
         Route.Country id ->
           let
             country = 
@@ -169,7 +168,7 @@ page model =
           in
             case country of
               Just country ->
-                viewCountry country dishes
+                Page.Country.view country dishes
               Nothing ->
                 div [] [ text "404 - Not Found" ]
         Route.Dish id ->
@@ -186,86 +185,13 @@ page model =
               Just country ->
                 case dish of
                   Just dish ->
-                    viewDish country dish
+                    Page.Dish.view country dish
                   Nothing ->
                     div [] [ text "404 - Not Found" ]
               Nothing ->
                 div [] [ text "404 - Not Found" ]
     Nothing ->
-      viewHome model
-
-viewHome : Model -> Html Msg
-viewHome model =
-  div []
-    [ div []
-      [ div []
-        [ span
-          [ onClick (ShowTab "country") ]
-          [ text "By Country" ]
-        , span
-          [ onClick (ShowTab "dish") ]
-          [ text "By Dish Name" ]
-        ]
-      , div [] 
-        [ if model.tab == "country" then
-            ul []
-            (List.map 
-              (\country -> 
-                li 
-                [ onClick (NewUrl ("/country/" ++ country.id)) ] 
-                [ text country.name ]
-              ) 
-              model.countries
-            )
-          else
-            ul []
-            (List.map 
-              (\dish -> 
-                li 
-                [ onClick (NewUrl ("/dish/" ++ dish.id)) ] 
-                [ text dish.name ]
-              ) 
-              model.dishNames
-            )
-        ]
-      ]
-    , ul []
-        (List.map 
-          (\filter -> 
-            li 
-            [ onClick (ToggleFilter filter)]
-            [ text filter
-            , if List.member filter model.filtersDisabled then 
-                text " - disabled" 
-              else 
-                text "" 
-            ]
-          ) 
-          model.filters
-        )
-    ]
-
-viewCountry : Country -> (List CountryDish) -> Html Msg
-viewCountry country dishes =
-  div []
-    [ text country.name
-    , ul []
-      ( List.map 
-        (\dish -> 
-          li 
-          [ onClick (NewUrl ("/dish/" ++ dish.id)) ] 
-          [ text dish.name ]
-        ) 
-        dishes
-      )
-    ]
-
-viewDish : Country -> Dish -> Html Msg
-viewDish country dish =
-  div []
-    [ text country.name 
-    , text dish.name
-    ]
+      Page.Home.view model
 
 -- SUBSCRIPTIONS --
 subscriptions : Model -> Sub Msg
