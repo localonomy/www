@@ -11,6 +11,8 @@ import Data.Dish as Dish exposing (Dish)
 import Data.DishName as DishName exposing (DishName)
 import Data.Filter as Filter exposing (Filter)
 
+import Model exposing (Model, initialModel)
+
 import Route exposing (Route (..), route)
 
 -- MAIN --
@@ -24,33 +26,18 @@ main =
     }
 
 -- INIT --
-type alias Model = 
-  { currentLocation : Maybe Route
-  , countries : (List Country)
-  , countryDishes : (List CountryDish)
-  , dishNames : (List DishName)
-  , currentDish : Maybe Dish
-  , filters : (List Filter)
-  , filtersDisabled : (List Filter)
-  , tab : String
-  }
-
-init : Navigation.Location -> (Model, Cmd Msg)
-init location =
-  ( { currentLocation = UrlParser.parsePath route location
-    , countries = []
-    , countryDishes = []
-    , dishNames = []
-    , currentDish = Nothing
-    , filters = []
-    , filtersDisabled = []
-    , tab = "country"
-    }
-  , Cmd.batch 
+initialCmd : Cmd Msg
+initialCmd = 
+  Cmd.batch 
     [ fetchCountries
     , fetchDishes
     , fetchFilters
     ]
+
+init : Navigation.Location -> (Model, Cmd Msg)
+init location =
+  ( initialModel (UrlParser.parsePath route location)
+  , initialCmd
   )
 
 -- UPDATE --
