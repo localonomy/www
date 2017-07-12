@@ -16,7 +16,7 @@ import Request.Filter
 import Model exposing (Model, initialModel)
 import Msg exposing (Msg (..))
 
-import Route exposing (Route (..), route)
+import Route exposing (Route (..), route, initialRoute)
 
 -- MAIN --
 main : Program Never Model Msg
@@ -29,10 +29,6 @@ main =
     }
 
 -- INIT --
-initialRoute : Navigation.Location -> Maybe Route
-initialRoute location =
-  UrlParser.parsePath route location
-
 initialCmd : Maybe Route -> Cmd Msg
 initialCmd newLocation =
   case newLocation of

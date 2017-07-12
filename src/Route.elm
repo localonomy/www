@@ -1,12 +1,15 @@
 module Route exposing (Route(..), route)
 
+import Navigation exposing (Location)
 import UrlParser exposing (..)
 
+-- TYPE --
 type Route
   = Home
   | Country String
   | Dish String
 
+-- ROUTE --
 route : Parser (Route -> a) a
 route =
   oneOf
@@ -14,3 +17,8 @@ route =
     , map Country (s "country" </> string)
     , map Dish (s "dish" </> string)
     ]
+
+-- INITIAL ROUTE --
+initialRoute : Location -> Maybe Route
+initialRoute location =
+  UrlParser.parsePath route location
