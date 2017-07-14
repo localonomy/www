@@ -123,8 +123,7 @@ styleMain =
 styleHeader : Attribute Msg
 styleHeader =
   Html.Attributes.style
-    [ ("width", "100%")
-    , ("padding", "12px")
+    [ ("padding", "12px")
     , ("background-color", "chocolate")
     , ("color", "white")
     ]
@@ -200,7 +199,7 @@ styleSelectorsSelect =
 styleFilters : Attribute Msg
 styleFilters = 
   Html.Attributes.style
-    [ ("height", "100%")
+    [ ("height", "calc(100% - 275px)")
     , ("padding-left", "12px")
     , ("padding-right", "12px")
     ]
@@ -217,7 +216,7 @@ styleFiltersList =
     , ("justify-content", "space-between")
     , ("align-content", "space-around")
     , ("align-items", "center")
-    , ("height", "calc(100% - 275px)")
+    , ("height", "100%")
     ]
 styleFilter : Attribute Msg
 styleFilter = 
@@ -229,9 +228,11 @@ styleFilterImage : Attribute Msg
 styleFilterImage = 
   Html.Attributes.style
     [ ("opacity", "1")
+    , ("height", "100px")
     ]
 styleFilterImageDisabled : Attribute Msg
 styleFilterImageDisabled = 
   Html.Attributes.style
     [ ("opacity", "0.3")
+    , ("height", "100px")
     ]
