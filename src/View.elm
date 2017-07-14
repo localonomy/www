@@ -39,7 +39,7 @@ page model =
               Just country ->
                 Page.Country.view country dishes
               Nothing ->
-                div [] [ text "404 - Not Found" ]
+                div [] [ text "" ]
         Route.Dish id ->
           let
             country =
@@ -56,8 +56,8 @@ page model =
                   Just dish ->
                     Page.Dish.view country dish
                   Nothing ->
-                    div [] [ text "404 - Not Found" ]
+                    div [] [ text "" ]
               Nothing ->
-                div [] [ text "404 - Not Found" ]
+                div [] [ text "" ]
     Nothing ->
       Page.Home.view model
