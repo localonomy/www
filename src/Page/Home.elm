@@ -8,6 +8,8 @@ import Html.Events exposing (..)
 import Model exposing (Model)
 import Msg exposing (Msg (..))
 
+import Config exposing (baseUrl)
+
 -- VIEW --
 view : Model -> Html Msg
 view model =
@@ -78,13 +80,16 @@ view model =
             li 
             [ onClick (ToggleFilter filter)
             , styleFilter
-            , if List.member filter model.filtersDisabled then
-                styleFilterDisabled
-              else
-                styleFilter
             ]
-            [ text filter ]
-          ) 
+            [ img 
+              [ src (baseUrl ++ "/img/filter/" ++ filter ++ ".png")
+              , alt (filter)
+              , if List.member filter model.filtersDisabled then
+                  styleFilterImageDisabled
+                else
+                  styleFilterImage
+              ] [] ]
+          )
           model.filters
         )
       ]
@@ -195,8 +200,7 @@ styleSelectorsSelect =
 styleFilters : Attribute Msg
 styleFilters = 
   Html.Attributes.style
-    [ ("background-color", "blue")
-    , ("height", "100%")
+    [ ("height", "100%")
     , ("padding-left", "12px")
     , ("padding-right", "12px")
     ]
@@ -205,6 +209,7 @@ styleFiltersList =
   Html.Attributes.style
     [ ("list-style", "none")
     , ("margin", "0px")
+    , ("margin-top", "12px")
     , ("padding", "0px")
     , ("display", "flex")
     , ("flex-direction", "row")
@@ -217,11 +222,16 @@ styleFiltersList =
 styleFilter : Attribute Msg
 styleFilter = 
   Html.Attributes.style
-    [ ("background-color", "yellow")
-    , ("width", "calc(33% - 12px)")
+    [ ("width", "calc(33% - 12px)")
+    , ("text-align", "center")
     ]
-styleFilterDisabled : Attribute Msg
-styleFilterDisabled = 
+styleFilterImage : Attribute Msg
+styleFilterImage = 
   Html.Attributes.style
-    [ ("background-color", "red")
+    [ ("opacity", "1")
+    ]
+styleFilterImageDisabled : Attribute Msg
+styleFilterImageDisabled = 
+  Html.Attributes.style
+    [ ("opacity", "0.3")
     ]
