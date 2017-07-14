@@ -20,6 +20,7 @@ view model =
       [ div [ styleTabs ]
         [ span
           [ onClick (ShowTab "country")
+          , styleTabLeft
           , if model.tab == "country" then
               styleTabSelected 
             else 
@@ -28,6 +29,7 @@ view model =
           [ text "By Country" ]
         , span
           [ onClick (ShowTab "dish")
+          , styleTabRight
           , if model.tab == "dish" then
               styleTabSelected 
             else 
@@ -37,7 +39,7 @@ view model =
         ]
       , div [ styleSelectors ] 
         [ if model.tab == "country" then
-            select [ onInput (onSelect) ]
+            select [ onInput (onSelect), styleSelectorsSelect ]
             ( List.append 
               [ option
                 [] [ text "Select a country" ]
@@ -52,7 +54,7 @@ view model =
               )
             )
           else
-            select [ onInput (onSelect) ]
+            select [ onInput (onSelect), styleSelectorsSelect ]
             ( List.append
               [ option
                 [] [ text "Select a dish" ]
@@ -124,15 +126,15 @@ styleSlogan : Attribute Msg
 styleSlogan = 
   Html.Attributes.style
     [ ("text-align", "center")
-    , ("margin-top", "32px")
+    , ("margin-top", "64px")
     , ("margin-bottom", "32px")
+    , ("font-size", "20px")
     ]
 
 styleSelect : Attribute Msg
 styleSelect = 
   Html.Attributes.style
-    [ ("background-color", "yellow")
-    , ("display", "flex")
+    [ ("display", "flex")
     , ("flex-direction", "column")
     ]
 
@@ -151,6 +153,16 @@ styleTab =
     , ("flex-grow", "1")
     , ("text-align", "center")
     ]
+styleTabLeft : Attribute Msg
+styleTabLeft = 
+  Html.Attributes.style
+   [ ("border-top-left-radius", "12px")
+   ]
+styleTabRight : Attribute Msg
+styleTabRight = 
+  Html.Attributes.style
+   [ ("border-top-right-radius", "12px")
+   ]
 styleTabSelected : Attribute Msg
 styleTabSelected = 
   Html.Attributes.style
@@ -163,7 +175,19 @@ styleTabSelected =
 styleSelectors : Attribute Msg
 styleSelectors = 
   Html.Attributes.style
-    [ ("background-color", "red")
+    [ ("padding-left", "12px")
+    , ("padding-right", "12px")
+    ]
+styleSelectorsSelect : Attribute Msg
+styleSelectorsSelect =
+  Html.Attributes.style
+    [ ("width", "100%")
+    , ("height", "42px")
+    , ("font-size", "20px")
+    , ("border", "1px solid lightgrey")
+    , ("border-radius", "0px")
+    , ("padding-left", "12px")
+    , ("-webkit-appearance", "none")
     ]
 
 styleFilters : Attribute Msg
