@@ -17,6 +17,9 @@ import Request.Filter
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
+    NoOp ->
+      ( model, Cmd.none )
+
     NewUrl url ->
       ( model, Navigation.newUrl url )
     

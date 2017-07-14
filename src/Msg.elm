@@ -10,7 +10,8 @@ import Data.DishName exposing (DishName)
 
 -- MSG --
 type Msg 
-  = NewUrl String
+  = NoOp
+  | NewUrl String
   | UrlChange Navigation.Location
   | ShowTab String
   | ToggleFilter String
