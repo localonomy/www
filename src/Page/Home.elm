@@ -71,20 +71,22 @@ view model =
         ]
       ]
     , div [ styleFilters ]
-      [ ul []
-          (List.map 
-            (\filter -> 
-              li 
-              [ onClick (ToggleFilter filter)]
-              [ text filter
-              , if List.member filter model.filtersDisabled then 
-                  text " - disabled" 
-                else 
-                  text "" 
-              ]
-            ) 
-            model.filters
-          )
+      [ ul 
+        [ styleFiltersList ]
+        ( List.map 
+          (\filter -> 
+            li 
+            [ onClick (ToggleFilter filter)
+            , styleFilter
+            , if List.member filter model.filtersDisabled then
+                styleFilterDisabled
+              else
+                styleFilter
+            ]
+            [ text filter ]
+          ) 
+          model.filters
+        )
       ]
     ]
 
@@ -194,4 +196,32 @@ styleFilters : Attribute Msg
 styleFilters = 
   Html.Attributes.style
     [ ("background-color", "blue")
+    , ("height", "100%")
+    , ("padding-left", "12px")
+    , ("padding-right", "12px")
+    ]
+styleFiltersList : Attribute Msg
+styleFiltersList = 
+  Html.Attributes.style
+    [ ("list-style", "none")
+    , ("margin", "0px")
+    , ("padding", "0px")
+    , ("display", "flex")
+    , ("flex-direction", "row")
+    , ("flex-wrap", "wrap")
+    , ("justify-content", "space-between")
+    , ("align-content", "space-around")
+    , ("align-items", "center")
+    , ("height", "calc(100% - 275px)")
+    ]
+styleFilter : Attribute Msg
+styleFilter = 
+  Html.Attributes.style
+    [ ("background-color", "yellow")
+    , ("width", "calc(33% - 12px)")
+    ]
+styleFilterDisabled : Attribute Msg
+styleFilterDisabled = 
+  Html.Attributes.style
+    [ ("background-color", "red")
     ]
