@@ -1,6 +1,7 @@
 module Page.Home exposing (view)
 
 import Html exposing (..)
+import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 
 import Model exposing (Model)
@@ -9,17 +10,31 @@ import Msg exposing (Msg (..))
 -- VIEW --
 view : Model -> Html Msg
 view model =
-  div []
-    [ div []
-      [ div []
+  div [ styleMain ]
+    [ div [ styleHeader ]
+      [ text "Localonomy" ]
+    , div [ styleSlogan ]
+      [ text "Discover Local Delicacies!" ]
+    , div [ styleSelect ]
+      [ div [ styleTabs ]
         [ span
-          [ onClick (ShowTab "country") ]
+          [ onClick (ShowTab "country")
+          , if model.tab == "country" then
+              styleTabSelected 
+            else 
+              styleTab
+          ]
           [ text "By Country" ]
         , span
-          [ onClick (ShowTab "dish") ]
+          [ onClick (ShowTab "dish")
+          , if model.tab == "dish" then
+              styleTabSelected 
+            else 
+              styleTab
+          ]
           [ text "By Dish Name" ]
         ]
-      , div [] 
+      , div [ styleSelectors ] 
         [ if model.tab == "country" then
             ul []
             (List.map 
@@ -42,18 +57,86 @@ view model =
             )
         ]
       ]
-    , ul []
-        (List.map 
-          (\filter -> 
-            li 
-            [ onClick (ToggleFilter filter)]
-            [ text filter
-            , if List.member filter model.filtersDisabled then 
-                text " - disabled" 
-              else 
-                text "" 
-            ]
-          ) 
-          model.filters
-        )
+    , div [ styleFilters ]
+      [ ul []
+          (List.map 
+            (\filter -> 
+              li 
+              [ onClick (ToggleFilter filter)]
+              [ text filter
+              , if List.member filter model.filtersDisabled then 
+                  text " - disabled" 
+                else 
+                  text "" 
+              ]
+            ) 
+            model.filters
+          )
+      ]
+    ]
+
+-- STYLES --
+styleMain : Attribute Msg
+styleMain = 
+  Html.Attributes.style
+    [ ("height", "100%")
+    ]
+
+styleHeader : Attribute Msg
+styleHeader =
+  Html.Attributes.style
+    [ ("width", "100%")
+    , ("padding", "12px")
+    , ("background-color", "chocolate")
+    , ("color", "white")
+    ]
+
+styleSlogan : Attribute Msg
+styleSlogan = 
+  Html.Attributes.style
+    [ ("text-align", "center")
+    , ("margin-top", "32px")
+    , ("margin-bottom", "32px")
+    ]
+
+styleSelect : Attribute Msg
+styleSelect = 
+  Html.Attributes.style
+    [ ("background-color", "red")
+    ]
+
+styleTabs : Attribute Msg
+styleTabs = 
+  Html.Attributes.style
+    [ ("padding", "12px")
+    , ("padding-bottom", "0px")
+    , ("display", "flex")
+    ]
+styleTab : Attribute Msg
+styleTab = 
+  Html.Attributes.style
+    [ ("background-color", "peachpuff")
+    , ("padding", "12px")
+    , ("flex-grow", "1")
+    , ("text-align", "center")
+    ]
+styleTabSelected : Attribute Msg
+styleTabSelected = 
+  Html.Attributes.style
+    [ ("background-color", "chocolate")
+    , ("padding", "12px")
+    , ("flex-grow", "1")
+    , ("text-align", "center")
+    ]
+
+styleSelectors : Attribute Msg
+styleSelectors = 
+  Html.Attributes.style
+    [ ("background-color", "red")
+    ]
+
+styleFilters : Attribute Msg
+styleFilters = 
+  Html.Attributes.style
+    [ ("background-color", "blue")
     ]
