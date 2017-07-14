@@ -1,5 +1,6 @@
 module Page.Home exposing (view)
 
+import Array
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
@@ -36,24 +37,34 @@ view model =
         ]
       , div [ styleSelectors ] 
         [ if model.tab == "country" then
-            ul []
-            (List.map 
-              (\country -> 
-                li 
-                [ onClick (NewUrl ("/country/" ++ country.id)) ] 
-                [ text country.name ]
-              ) 
-              model.countries
+            select [ onInput (onSelect) ]
+            ( List.append 
+              [ option
+                [] [ text "Select a country" ]
+              ]
+              ( List.map 
+                (\country -> 
+                  option 
+                  [ value ("country-" ++ country.id) ] 
+                  [ text country.name ]
+                ) 
+                model.countries
+              )
             )
           else
-            ul []
-            (List.map 
-              (\dish -> 
-                li 
-                [ onClick (NewUrl ("/dish/" ++ dish.id)) ] 
-                [ text dish.name ]
-              ) 
-              model.dishNames
+            select [ onInput (onSelect) ]
+            ( List.append
+              [ option
+                [] [ text "Select a dish" ]
+              ]
+              ( List.map 
+                (\dish -> 
+                  option 
+                  [ value ("dish-" ++ dish.id) ] 
+                  [ text dish.name ]
+                ) 
+                model.dishNames
+              )
             )
         ]
       ]
@@ -74,6 +85,24 @@ view model =
           )
       ]
     ]
+
+onSelect : String -> Msg
+onSelect element =
+  let
+    elementSplit = Array.fromList (String.split "-" element)
+    
+    path = Array.get 0 elementSplit
+    id = Array.get 1 elementSplit
+  in
+    case path of
+      Just path ->
+        case id of
+          Just id -> 
+            NewUrl ("/" ++ path ++ "/" ++ id)
+          Nothing ->
+            NoOp
+      Nothing ->
+        NoOp
 
 -- STYLES --
 styleMain : Attribute Msg
@@ -102,7 +131,9 @@ styleSlogan =
 styleSelect : Attribute Msg
 styleSelect = 
   Html.Attributes.style
-    [ ("background-color", "red")
+    [ ("background-color", "yellow")
+    , ("display", "flex")
+    , ("flex-direction", "column")
     ]
 
 styleTabs : Attribute Msg
