@@ -1,6 +1,7 @@
 module View exposing (view)
 
 import Html exposing (..)
+import Html.Attributes exposing (..)
 
 import Model exposing (Model)
 import Msg exposing (Msg)
@@ -14,7 +15,7 @@ import Route exposing (Route (..))
 -- VIEW --
 view : Model -> Html Msg
 view model =
-  div [] [ page model ]
+  div [ styleMain ] [ page model ]
 
 -- PAGE --
 page : Model -> Html Msg
@@ -61,3 +62,10 @@ page model =
                 div [] [ text "" ]
     Nothing ->
       Page.Home.view model
+
+-- STYLES --
+styleMain : Attribute Msg
+styleMain = 
+  Html.Attributes.style
+    [ ("height", "100%")
+    ]
