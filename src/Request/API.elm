@@ -1,4 +1,7 @@
 module Request.API exposing (baseUrl)
 
+import Config exposing (baseUrl)
+
+-- API BASE URL --
 baseUrl : String
-baseUrl = "http://localhost:3000/api"
+baseUrl = Config.baseUrl ++ "/api"
