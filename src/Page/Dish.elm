@@ -18,18 +18,29 @@ view country dish =
     [ div [ styleHeader]
       [ text "Localonomy" ]
     , div [ styleSubHeader ] 
-      [ div [] [ text dish.name ]
-      , div [] 
-        ( List.map 
-          (\ingredient ->
-            img 
-            [ src(baseUrl ++ "/img/ingredient/" ++ ingredient ++ ".png")
-            , alt(ingredient)
-            , styleIngredient
-            ] []
+      [ div [ styleSubHeaderLeft ] 
+        [ div [] 
+          [ span [ styleDishName ] 
+            [ text dish.name ]
+          , if dish.localName == dish.name then
+              span [ styleDishLocalName ] 
+              [ text "" ]
+            else
+              span [ styleDishLocalName ] 
+              [ text (" - " ++ dish.localName) ]
+          ]
+        , div [] 
+          ( List.map 
+            (\ingredient ->
+              img 
+              [ src(baseUrl ++ "/img/ingredient/" ++ ingredient ++ ".png")
+              , alt(ingredient)
+              , styleIngredient
+              ] []
+            )
+            dish.ingredients
           )
-          dish.ingredients
-        )
+        ]
       , div [] 
         [ img 
           [ src(baseUrl ++ "/img/flag/" ++ country.code ++ ".png")
@@ -39,13 +50,13 @@ view country dish =
         ]
       ]
     , div []
-      [ div []
+      [ div [ styleDescription ]
         [ text dish.description]
       , div []
         [ img 
           [ src(baseUrl ++ "/img/dish/" ++ String.toLower (toKebabCase dish.name) ++ ".jpg")
           , alt(country.name)
-          , styleFlag
+          , styleDishImage
           ] [] 
         ]
       ]
@@ -75,18 +86,48 @@ styleSubHeader =
   Html.Attributes.style
     [ ("display", "flex")
     , ("padding", "12px")
-    , ("background-color", "peachpuff")
-    , ("color", "black")
-    , ("border-bottom", "1px solid lightgrey")
+    ]
+styleSubHeaderLeft : Attribute Msg
+styleSubHeaderLeft =
+  Html.Attributes.style
+    [ ("flex-grow", "1")
+    , ("display", "flex")
+    , ("flex-direction", "column")
+    ]
+styleDishName : Attribute Msg
+styleDishName =
+  Html.Attributes.style
+    [ ("font-size", "20px")
+    , ("font-weight", "bold")
+    ]
+styleDishLocalName : Attribute Msg
+styleDishLocalName =
+  Html.Attributes.style
+    [ ("font-size", "12px")
     ]
 styleIngredient : Attribute Msg
 styleIngredient =
   Html.Attributes.style
-    [ ("height", "24px")
+    [ ("height", "16px")
     , ("margin-right", "6px")
     ]
 styleFlag : Attribute Msg
 styleFlag =
   Html.Attributes.style
-    [ ("height", "32px")
+    [ ("height", "36px")
+    , ("border", "1px solid black")
+    ]
+
+styleDescription : Attribute Msg
+styleDescription =
+  Html.Attributes.style
+    [ ("padding", "12px")
+    , ("text-align", "justify")
+    ]
+
+styleDishImage : Attribute Msg
+styleDishImage  =
+  Html.Attributes.style
+    [ ("padding", "12px")
+    , ("width", "calc(100% - 24px)")
     ]
