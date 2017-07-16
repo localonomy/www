@@ -95,11 +95,13 @@ styleSubHeaderCountryName : Attribute Msg
 styleSubHeaderCountryName =
   Html.Attributes.style
     [ ("font-size", "20px")
+    , ("font-weight", "bold")
     ]
 styleSubHeaderFlag : Attribute Msg
 styleSubHeaderFlag =
   Html.Attributes.style
     [ ("height", "32px")
+    , ("border", "1px solid black")
     ]
 
 styleDishList : Attribute Msg
