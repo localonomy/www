@@ -1,0 +1,34 @@
+{
+  "name": "localonomy",
+  "version": "1.0.0",
+  "description": "Localonomy webapp",
+  "private": true,
+  "main": "server.js",
+  "scripts": {
+    "clean": "rimraf build && mkdir build",
+    "prebuild": "npm run clean",
+    "build": "elm make --output=build/main.js src/Main.elm --yes",
+    "prestart": "npm run build",
+    "start": "forever server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/localonomy/www.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/localonomy/www/issues"
+  },
+  "homepage": "https://github.com/localonomy/www#readme",
+  "devDependencies": {
+    "elm": "^0.18.0",
+    "rimraf": "^2.6.1"
+  },
+  "dependencies": {
+    "express": "^4.15.3",
+    "forever": "^0.15.3"
+  }
+}

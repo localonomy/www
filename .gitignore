@@ -6,3 +6,6 @@ repl-temp-*
 
 # build
 build/
+
+# npm
+node_modules/
