@@ -108,7 +108,9 @@ styleDishList : Attribute Msg
 styleDishList =
   Html.Attributes.style
     [ ("list-style", "none")
-    , ("padding", "12px")
+    , ("padding-top", "12px")
+    , ("padding-left", "12px")
+    , ("padding-right", "12px")
     , ("margin", "0px")
     , ("overflow", "scroll")
     ]
