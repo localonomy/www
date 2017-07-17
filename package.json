@@ -8,7 +8,6 @@
     "clean": "rimraf build && mkdir build",
     "prebuild": "npm run clean",
     "build": "elm make --output=build/main.js src/Main.elm --yes",
-    "prestart": "npm run build",
     "start": "forever server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
