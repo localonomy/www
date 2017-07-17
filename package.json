@@ -5,10 +5,8 @@
   "private": true,
   "main": "server.js",
   "scripts": {
-    "clean": "rimraf build && mkdir build",
-    "prebuild": "npm run clean",
     "build": "elm make --output=build/main.js src/Main.elm --yes",
-    "start": "forever server.js",
+    "start": "npm run build && forever server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
