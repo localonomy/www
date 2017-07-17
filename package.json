@@ -5,9 +5,12 @@
   "private": true,
   "main": "server.js",
   "scripts": {
+    "clean": "rimraf build && mkdir build",
+    "prebuild": "npm run clean",
     "build": "elm make --output=build/main.js src/Main.elm --yes",
-    "start": "npm run build && forever server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "forever server.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "heroku-postbuild": "npm run build"
   },
   "repository": {
     "type": "git",
